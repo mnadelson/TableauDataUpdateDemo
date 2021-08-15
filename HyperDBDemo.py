@@ -15,9 +15,9 @@ import botocore
 
 xmlns = {'t': 'http://tableau.com/api'}
 VERSION = '3.12'
-sales_database = 'c:/temp/SalesData.hyper'
+sales_database = '/tm/SalesData.hyper'
 S3_BUCKET='Sales'
-local_csv_path = 'c:/temp/Sales.csv'
+local_csv_path = '/tmp/Sales.csv'
 
 class ApiCallError(Exception):
     pass

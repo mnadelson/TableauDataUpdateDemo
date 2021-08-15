@@ -10,10 +10,14 @@ from requests.packages.urllib3.filepost import encode_multipart_formdata
 # generate random integer values
 from random import seed
 from random import randint
+import boto3
+import botocore
 
 xmlns = {'t': 'http://tableau.com/api'}
 VERSION = '3.12'
 sales_database = 'c:/temp/SalesData.hyper'
+S3_BUCKET='Sales'
+local_csv_path = 'c:/temp/Sales.csv'
 
 class ApiCallError(Exception):
     pass
@@ -102,8 +106,12 @@ def update_hyper_file_from_csv(path_to_csv):
             connection.catalog.create_table(table_definition=sales_delta_table)           
             print(f"The table {sales_delta_table} is defined.")
             
+            # Download from S3
+            s3 = boto3.resource('s3')
+            s3.Bucket(S3_BUCKET).download_file(path_to_csv, local_csv_path)
+            
             count_in_sales_table = connection.execute_command(
-                    command=f"COPY {sales_temp_table.table_name} from {escape_string_literal(path_to_csv[0])} with "f"(format csv, NULL 'NULL', delimiter ',', header)")
+                    command=f"COPY {sales_temp_table.table_name} from {escape_string_literal(local_csv_path[0])} with "f"(format csv, NULL 'NULL', delimiter ',', header)")
             print(f"The number of rows in table {sales_temp_table.table_name} is {count_in_sales_table}.")
             rows_in_table = connection.execute_list_query(query=f"SELECT * FROM {sales_table.table_name}")
             #print(rows_in_table)
